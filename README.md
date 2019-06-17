@@ -5,10 +5,8 @@ Fault Attack on LED Cipher
 - led bytes with fault.c : Implementation with a fault injection in the third last round.
 
 
-Sample
+Example
 ======
 
-- no fault cipher: 998514d267b869a4
-- fault cipher: 0023846c02817bfa
+`python attack.py 85f00836609a0113 15aa87eb31dec7c4 abbccddeeffbfeed`
 
- 

@@ -6,6 +6,7 @@
 
 from functools import reduce
 from math import log
+import sys
 sbox = [12, 5, 6, 11, 9, 0, 10, 13, 3, 14, 15, 8, 4, 7, 1, 2];
 inverse_memo = {}
 
@@ -82,16 +83,20 @@ def calculate_fault_equation(cipher, key, cipherf, mid):
 
 if __name__ == "__main__":
   
-    cipher_text = raw_input("Input the no_fault cipher: ")
-    cipher_text = bin(int(cipher_text, base=16))[2:]
+    if len(sys.argv) != 4:
+        print 'usage: python attack.py <no_fault_cipher> <faulty_cipher> <your_key>'
+        sys.exit(1)
+
+    cipher_text = sys.argv[1]
+    cipher_text = format(int(cipher_text, base=16), '064b')
     cipher_text = [cipher_text[x:x+4] for x in range(0, len(cipher_text), 4)]
     cipher_text = [int(x, 2) for x in cipher_text]
     cipher = cipher_text
 
     print 'cipher_block:', cipher
 
-    cipherf = raw_input("Input the faulty cipher: ")
-    cipherf = bin(int(cipherf, base=16))[2:]
+    cipherf = sys.argv[2]
+    cipherf = format(int(cipherf, base=16), '064b')
     cipherf = [cipherf[x:x+4] for x in range(0, len(cipherf), 4)]
     cipherf = [int(x, 2) for x in cipherf]
 
@@ -115,6 +120,7 @@ if __name__ == "__main__":
     for z in range(0, 4):
         for y in [faults_a, faults_b, faults_c, faults_d]:
             eq = y[z]
+            print 'trying equation', eq
             sxi = []
             if y == faults_a:
                 cur = 'a'
@@ -158,6 +164,10 @@ if __name__ == "__main__":
                     fault_values[x].add(j)
     print 'possible fault values: ', fault_values
 
+    k1 = set()
+    k2 = set()
+    k3 = set()
+    k4 = set()
     keyspace = 0
     for a in fault_values['a']:
         for b in fault_values['b']:
@@ -170,12 +180,16 @@ if __name__ == "__main__":
 
                     keyspace += len(k0_4_8_12) * len(k1_5_9_13) * len(k2_6_10_14) * len(k3_7_11_15)
 
-                    print '(k0, k4, k8, k12): ', k0_4_8_12
-                    print '(k1, k5, k9, k13): ', k1_5_9_13
-                    print '(k2, k6, k10,k14): ', k2_6_10_14
-                    print '(k3, k7, k11,k15): ', k3_7_11_15
+                    k1 = k1.union(k0_4_8_12)
+                    k2 = k2.union(k1_5_9_13)
+                    k3 = k3.union(k2_6_10_14)
+                    k4 = k4.union(k3_7_11_15) 
 
 
     print 'keyspace reduced to: %d keys, which is 2^%d' % (keyspace, log(keyspace, 2))
 
-    print 'Checking if the key exists in our possibilities:', (0xC, 0xC, 0xC, 0xC) in k0_4_8_12, (0xC, 0xC, 0xC, 0xC) in k1_5_9_13, (0xC, 0xC, 0xC, 0xC) in k2_6_10_14, (0xC, 0xC, 0xC, 0xC) in k2_6_10_14, (0xC, 0xC, 0xC, 0xC) in k3_7_11_15
+    ourkey = int(sys.argv[3], 16)
+    rk = format(ourkey, '064b')
+    rk = [rk[x:x+4] for x in range(0, len(rk), 4)]
+    rk = [int(x, 2) for x in rk]
+    print 'Checking if the key exists in our possibilities:', (rk[0], rk[4], rk[8], rk[12]) in k1, (rk[1], rk[5], rk[9], rk[13]) in k2, (rk[2], rk[6], rk[10], rk[14]) in k3, (rk[3], rk[7], rk[11], rk[15]) in k4
