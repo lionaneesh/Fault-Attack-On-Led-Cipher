@@ -212,15 +212,16 @@ void LED_enc(unsigned char* input, const unsigned char* userkey, int ksbits)
 
 void TestVectors(int kbits)
 {
-	unsigned char p[8];
+	unsigned char p[8] = {0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe};
 	unsigned char c[8];
-	unsigned char k[16];
+	unsigned char k[16] = {0xab, 0xbc, 0xcd, 0xde,
+                           0xef, 0xff, 0xfe, 0xed,
+                           0xdb, 0xbc, 0xab, 0xaa,
+                           0xde, 0xad, 0xbe, 0xef};
 	int n;
 	for(n = 1; n < 2; n++)
 	{
 		int i;
-		for(i = 0; i < 8; i++) c[i] = p[i] = 0xAA;
-		for(i = 0; i < 16; i++)k[i] = 0xCC;
 		printf("K = "); for(i = 0; i < kbits/8; i++) printf("%02x", k[i]); printf("\n");
 		printf("P = "); for(i = 0; i < 8; i++) printf("%02x", p[i]); printf("\n");
 		LED_enc(c, k, kbits);
